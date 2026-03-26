@@ -1,17 +1,8 @@
 {
-  "timestamp": "2026-03-26 20:26:10",
+  "timestamp": "2026-03-26 20:31:14",
   "total_runs": 38,
   "completed": 22,
-  "current_run": {
-    "model": "Coder-7B",
-    "bucket": "16k_20k",
-    "size": "2k",
-    "step": 0,
-    "total_steps": 26,
-    "pct": 0.0,
-    "eta": "0:00:00",
-    "elapsed": "0:00:04"
-  },
+  "current_run": null,
   "hparams": [
     [
       "learning_rate",
@@ -2565,14 +2556,14 @@
         "total_steps": null
       },
       "16k_20k_2k": {
-        "status": "running",
+        "status": "failed",
         "metric": null,
         "metric_label": "train_loss",
         "loss_curve": [],
         "total_steps": 26
       },
       "16k_20k_4k": {
-        "status": "pending",
+        "status": "running",
         "metric": null,
         "metric_label": "train_loss",
         "loss_curve": [],
