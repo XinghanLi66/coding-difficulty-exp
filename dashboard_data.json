@@ -1,16 +1,16 @@
 {
-  "timestamp": "2026-03-26 21:21:50",
+  "timestamp": "2026-03-26 21:26:54",
   "total_runs": 38,
   "completed": 23,
   "current_run": {
     "model": "Coder-7B",
     "bucket": "4k_6k",
     "size": "4k",
-    "step": 41,
+    "step": 61,
     "total_steps": 63,
-    "pct": 65.08,
-    "eta": "0:05:37",
-    "elapsed": "0:10:29"
+    "pct": 96.83,
+    "eta": "0:00:30",
+    "elapsed": "0:15:33"
   },
   "hparams": [
     [
