@@ -1,0 +1,19 @@
+# Model checkpoints and training outputs (too large for git)
+results/*/
+!results/eval/
+
+# Raw dataset files (too large)
+data/processed/*/pool.jsonl
+data/processed/*/train_*.jsonl
+
+# Large log files
+logs/*.log
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Temp files
+*.tmp
+*.swp

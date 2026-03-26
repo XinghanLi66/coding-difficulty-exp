@@ -1,0 +1,33 @@
+### Smoke test: Coder-1.5B, bucket_2k_4k, 50 samples
+model_name_or_path: /newcpfs/user/sujianghao/model/Qwen/Qwen2.5-Coder-1.5B
+trust_remote_code: true
+
+stage: sft
+do_train: true
+use_dft_loss: false
+finetuning_type: full
+
+dataset: bucket_2k_4k_1k
+dataset_dir: /newcpfs/lxh/coding-difficulty-exp/data
+template: qwen
+cutoff_len: 2048
+max_samples: 50
+overwrite_cache: true
+preprocessing_num_workers: 4
+
+output_dir: /newcpfs/lxh/coding-difficulty-exp/results/smoke_test
+logging_steps: 5
+save_steps: 9999
+overwrite_output_dir: true
+save_only_model: true
+report_to: none
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 2
+learning_rate: 5.0e-5
+num_train_epochs: 1.0
+lr_scheduler_type: constant
+warmup_ratio: 0.03
+bf16: true
+gradient_checkpointing: true
+flash_attn: fa2

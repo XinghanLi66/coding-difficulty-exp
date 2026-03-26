@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Training Progress Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <style>
+    /* -----------------------------------------------------------------------
+       Reset & Base
+    ----------------------------------------------------------------------- */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #1a1a2e;
+      --surface:   #16213e;
+      --surface2:  #0f3460;
+      --text:      #e0e0e0;
+      --muted:     #8888aa;
+      --border:    #2a2a4a;
+      --accent:    #e94560;
+      --yellow:    #f5c842;
+      --green:     #4caf50;
+      --orange:    #ff9800;
+      --red:       #e53935;
+      --grey-dark: #2a2a3e;
+      --font:      'Segoe UI', system-ui, -apple-system, sans-serif;
+      --mono:      'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+      --radius:    8px;
+    }
+
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 14px;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    a { color: var(--yellow); }
+
+    /* -----------------------------------------------------------------------
+       Layout
+    ----------------------------------------------------------------------- */
+    .page {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px 24px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    /* -----------------------------------------------------------------------
+       Header
+    ----------------------------------------------------------------------- */
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 20px;
+      padding: 16px 24px;
+    }
+
+    .header-title {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      flex: 1 1 auto;
+    }
+    .header-title span {
+      color: var(--yellow);
+    }
+
+    .header-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      min-width: 200px;
+    }
+
+    .timestamp {
+      font-size: 12px;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    .refresh-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* Spinner */
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid var(--border);
+      border-top-color: var(--yellow);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    .spinner.active { display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Progress bar */
+    .progress-wrap {
+      width: 100%;
+      margin-top: 12px;
+    }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .progress-bar-bg {
+      background: var(--border);
+      border-radius: 4px;
+      height: 8px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #4caf50, #a5d6a7);
+      border-radius: 4px;
+      transition: width 0.4s ease;
+    }
+
+    /* Current run banner */
+    .current-run-banner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      background: rgba(245, 200, 66, 0.08);
+      border: 1px solid rgba(245, 200, 66, 0.3);
+      border-radius: var(--radius);
+      padding: 10px 16px;
+      margin-top: 14px;
+      font-size: 13px;
+    }
+    .current-run-banner .run-label {
+      font-weight: 600;
+      color: var(--yellow);
+      white-space: nowrap;
+    }
+    .run-pill {
+      background: var(--surface2);
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-family: var(--mono);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .run-progress-bar {
+      flex: 1 1 120px;
+      min-width: 80px;
+    }
+    .run-progress-bar .progress-bar-bg { height: 6px; }
+    .run-progress-bar .progress-bar-fill {
+      background: linear-gradient(90deg, var(--yellow), #ffe082);
+    }
+    .run-pct {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--yellow);
+      white-space: nowrap;
+    }
+
+    /* -----------------------------------------------------------------------
+       Heatmap grid row
+    ----------------------------------------------------------------------- */
+    .heatmap-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 900px) {
+      .heatmap-row { grid-template-columns: 1fr; }
+    }
+
+    .heatmap-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+
+    /* Table */
+    .heatmap-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 3px;
+      table-layout: fixed;
+    }
+    .heatmap-table th {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-align: center;
+      padding: 4px 2px;
+    }
+    .heatmap-table th.row-header {
+      text-align: right;
+      padding-right: 10px;
+      min-width: 90px;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+    .heatmap-cell {
+      text-align: center;
+      vertical-align: middle;
+      border-radius: 5px;
+      height: 44px;
+      font-size: 12px;
+      font-family: var(--mono);
+      font-weight: 600;
+      cursor: pointer;
+      transition: filter 0.15s, box-shadow 0.15s;
+      position: relative;
+      padding: 2px;
+    }
+    .heatmap-cell:hover { filter: brightness(1.25); }
+    .heatmap-cell.selected {
+      box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--yellow) !important;
+      filter: brightness(1.3);
+      z-index: 1;
+    }
+
+    /* Status colors */
+    .heatmap-cell.status-pending  { background: var(--grey-dark); color: var(--muted); }
+    .heatmap-cell.status-failed   { background: var(--red);       color: #fff; }
+    .heatmap-cell.status-retry    { background: var(--orange);    color: #000; }
+    .heatmap-cell.status-na       { background: #1a1a1a; color: #3a3a3a; cursor: default; font-size: 1.1em; }
+    .heatmap-cell.status-na:hover { filter: none; }
+
+    /* Running: pulsing yellow border */
+    .heatmap-cell.status-running {
+      background: var(--grey-dark);
+      color: var(--yellow);
+      box-shadow: 0 0 0 2px var(--yellow);
+      animation: pulse-border 1.2s ease-in-out infinite;
+    }
+    @keyframes pulse-border {
+      0%, 100% { box-shadow: 0 0 0 2px rgba(245,200,66,0.9); }
+      50%       { box-shadow: 0 0 0 4px rgba(245,200,66,0.2); }
+    }
+
+    /* Color legend */
+    .legend {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      font-size: 11px;
+      color: var(--muted);
+      flex-wrap: wrap;
+    }
+    .legend-gradient {
+      width: 100px; height: 10px;
+      border-radius: 3px;
+      background: linear-gradient(to right,
+        hsl(0,80%,40%),
+        hsl(60,80%,40%),
+        hsl(120,80%,40%)
+      );
+    }
+    .legend-swatch {
+      width: 12px; height: 12px;
+      border-radius: 3px;
+      display: inline-block;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* -----------------------------------------------------------------------
+       Loss curve chart
+    ----------------------------------------------------------------------- */
+    .chart-wrap {
+      position: relative;
+      height: 300px;
+    }
+    .chart-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 15px;
+      display: none;
+    }
+    .chart-placeholder.visible { display: flex; }
+
+    /* -----------------------------------------------------------------------
+       Hyperparameter table
+    ----------------------------------------------------------------------- */
+    .hparam-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 700px) {
+      .hparam-grid { grid-template-columns: 1fr; }
+    }
+
+    .hparam-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .hparam-table th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 6px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .hparam-table td {
+      padding: 8px 10px;
+      font-size: 13px;
+      border-bottom: 1px solid rgba(42,42,74,0.6);
+      vertical-align: middle;
+    }
+    .hparam-table td:first-child {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: #9eb4d8;
+      white-space: nowrap;
+    }
+    .hparam-table td:last-child {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text);
+      word-break: break-all;
+    }
+    /* Highlight grid_search row */
+    .hparam-table tr.grid-search-row td {
+      background: rgba(245,200,66,0.06);
+      color: var(--yellow) !important;
+    }
+    .hparam-table tr.grid-search-row td:first-child {
+      color: var(--yellow) !important;
+    }
+    .hparam-table tr:last-child td { border-bottom: none; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- =====================================================================
+       HEADER
+  ===================================================================== -->
+  <div class="card header" id="header">
+    <div style="flex:1;">
+      <div class="header-title">Training Progress &mdash; <span>Coding Difficulty Exp</span></div>
+      <div class="progress-wrap" id="progress-wrap">
+        <div class="progress-label">
+          <span id="progress-text">Loading…</span>
+          <span id="progress-pct"></span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+      </div>
+      <div id="current-run-container"></div>
+    </div>
+    <div class="header-meta">
+      <div class="timestamp" id="timestamp">—</div>
+      <div class="refresh-info">
+        <div class="spinner" id="spinner"></div>
+        <span id="countdown">Refreshing in 30s</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       HEATMAPS
+  ===================================================================== -->
+  <div class="heatmap-row">
+    <!-- Coder-1.5B -->
+    <div class="card">
+      <div class="section-title">Model Performance</div>
+      <div class="heatmap-title">Qwen2.5-Coder-1.5B</div>
+      <div id="heatmap-1.5B"></div>
+    </div>
+    <!-- Coder-7B -->
+    <div class="card">
+      <div class="section-title">Model Performance</div>
+      <div class="heatmap-title">Qwen2.5-Coder-7B</div>
+      <div id="heatmap-7B"></div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       LOSS CURVE
+  ===================================================================== -->
+  <div class="card">
+    <div style="display:flex;align-items:baseline;gap:16px;margin-bottom:16px;">
+      <div class="section-title" style="margin-bottom:0">Loss Curves</div>
+      <div id="chart-subtitle" style="font-size:12px;color:var(--muted)">
+        All completed runs (grey) · current run (yellow) · <em>click a heatmap cell to highlight</em>
+      </div>
+      <div style="margin-left:auto;font-size:11px;color:var(--muted);text-align:right">
+        ⚠ Heatmap shows <strong style="color:var(--text)">train loss (NLL↓)</strong> now.<br>
+        Will switch to <strong style="color:var(--green)">pass@1 (code execution↑)</strong> after eval.
+      </div>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="loss-chart"></canvas>
+      <div class="chart-placeholder" id="chart-placeholder">No data yet</div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       HYPERPARAMETERS
+  ===================================================================== -->
+  <div class="card">
+    <div class="section-title">Hyperparameters</div>
+    <div class="hparam-grid">
+      <div id="hparam-left"></div>
+      <div id="hparam-right"></div>
+    </div>
+  </div>
+
+</div><!-- .page -->
+
+<script>
+// ===========================================================================
+// Selected run state (click-to-highlight)
+// ===========================================================================
+let selectedRunKey = null;   // e.g. "Coder-1.5B|2k_4k_1k"
+let lastData       = null;   // last fetched data, for re-rendering chart on click
+
+function setSelectedRun(runKey) {
+  // Toggle off if same cell clicked again
+  selectedRunKey = (selectedRunKey === runKey) ? null : runKey;
+
+  // Update all cell highlight states
+  document.querySelectorAll(".heatmap-cell").forEach(cell => {
+    cell.classList.toggle("selected", cell.dataset.runKey === selectedRunKey);
+  });
+
+  // Update chart subtitle
+  const sub = document.getElementById("chart-subtitle");
+  if (selectedRunKey) {
+    const [model, bucketSize] = selectedRunKey.split("|");
+    sub.innerHTML = `Highlighted: <strong style="color:var(--yellow)">${escHtml(model)} · ${escHtml(bucketSize)}</strong> &nbsp;·&nbsp; <span style="cursor:pointer;color:var(--muted);text-decoration:underline" onclick="setSelectedRun(null)">clear</span>`;
+  } else {
+    sub.innerHTML = `All completed runs (grey) · current run (yellow) · <em>click a heatmap cell to highlight</em>`;
+  }
+
+  // Re-render chart with new highlight
+  if (lastData) renderLossChart(lastData);
+}
+
+// ===========================================================================
+// Constants
+// ===========================================================================
+const BUCKETS = ["2k_4k","4k_6k","6k_8k","8k_12k","12k_16k","16k_20k"];
+const SIZES   = ["1k","2k","4k","8k"];
+const MODELS  = ["Coder-1.5B","Coder-7B"];
+const BUCKET_LABELS = {
+  "2k_4k":    "CoT 2k–4k",
+  "4k_6k":    "CoT 4k–6k",
+  "6k_8k":    "CoT 6k–8k",
+  "8k_12k":   "CoT 8k–12k",
+  "12k_16k":  "CoT 12k–16k",
+  "16k_20k":  "CoT 16k–20k",
+};
+const STATUS_SYMBOL = { running:"▶", retry:"↺", failed:"✗", pending:"·" };
+
+// ===========================================================================
+// Colour scale helpers
+// ===========================================================================
+/**
+ * Map a value ∈ [min, max] to hsl(h, 80%, 40%).
+ * For train_loss: lower = better = green (h=120); higher = worse = red (h=0).
+ * For pass@1:    higher = better = green;  lower = worse = red.
+ */
+function metricColor(value, allValues, metricLabel) {
+  if (allValues.length === 0) return null;
+  const lo = Math.min(...allValues);
+  const hi = Math.max(...allValues);
+  if (hi === lo) return `hsl(60,80%,40%)`; // all same → yellow
+
+  // t ∈ [0,1], where 1 = best
+  let t;
+  if (metricLabel === "pass@1") {
+    // higher = better
+    t = (value - lo) / (hi - lo);
+  } else {
+    // train_loss: lower = better
+    t = (hi - value) / (hi - lo);
+  }
+  t = Math.max(0, Math.min(1, t));
+  const hue = Math.round(t * 120); // 0=red, 120=green
+  return `hsl(${hue},80%,40%)`;
+}
+
+// ===========================================================================
+// Heatmap rendering
+// ===========================================================================
+function renderHeatmap(containerId, modelKey, runsData, colorMaps, bucketSizes) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  const runs = runsData[modelKey] || {};
+  // bucketSizes: {bucket: [size, ...]} — sizes that actually have data/configs
+  // Fall back to SIZES for buckets not listed
+  const bsizes = bucketSizes || {};
+
+  // Build table
+  const table = document.createElement("table");
+  table.className = "heatmap-table";
+
+  // Header row
+  const thead = document.createElement("thead");
+  const headRow = document.createElement("tr");
+  const thCorner = document.createElement("th");
+  thCorner.className = "row-header";
+  headRow.appendChild(thCorner);
+  for (const sz of SIZES) {
+    const th = document.createElement("th");
+    th.textContent = sz;
+    headRow.appendChild(th);
+  }
+  thead.appendChild(headRow);
+  table.appendChild(thead);
+
+  // Body
+  const tbody = document.createElement("tbody");
+  for (const bucket of BUCKETS) {
+    const tr = document.createElement("tr");
+
+    const thRow = document.createElement("th");
+    thRow.className = "row-header";
+    thRow.textContent = BUCKET_LABELS[bucket] || bucket;
+    tr.appendChild(thRow);
+
+    const validSizes = bsizes[bucket] || SIZES;
+    for (const size of SIZES) {
+      const td = document.createElement("td");
+      if (!validSizes.includes(size)) {
+        // This size doesn't exist for this bucket — show n/a
+        td.className = "heatmap-cell status-na";
+        td.textContent = "—";
+        td.title = `${modelKey} · ${bucket} · ${size} — not available (pool too small)`;
+        tr.appendChild(td);
+        continue;
+      }
+
+      const key  = `${bucket}_${size}`;
+      const info = runs[key] || { status:"pending", metric:null, metric_label:"train_loss" };
+      const runKey = `${modelKey}|${key}`;
+      td.className = `heatmap-cell status-${info.status}`;
+      td.dataset.runKey = runKey;
+      if (runKey === selectedRunKey) td.classList.add("selected");
+
+      if (info.status === "done" && info.metric !== null) {
+        // Colour from scale
+        const bg = colorMaps[modelKey]?.[info.metric_label]
+          ? metricColor(info.metric, colorMaps[modelKey][info.metric_label], info.metric_label)
+          : null;
+        if (bg) td.style.background = bg;
+        td.textContent = info.metric.toFixed(2);
+
+        // Tooltip
+        const label = info.metric_label === "pass@1" ? "pass@1" : "train_loss (NLL)";
+        td.title = `${modelKey} · ${bucket} · ${size}\n${label}: ${info.metric.toFixed(4)}\nClick to highlight loss curve`;
+      } else {
+        td.textContent = STATUS_SYMBOL[info.status] || "·";
+        td.title = `${modelKey} · ${bucket} · ${size} · ${info.status}`;
+      }
+
+      // Click to highlight loss curve (only if there's curve data)
+      if (info.loss_curve && info.loss_curve.length > 0) {
+        td.addEventListener("click", () => setSelectedRun(runKey));
+      } else if (info.status !== "pending") {
+        td.style.cursor = "not-allowed";
+        td.title += "\n(no loss data yet)";
+      }
+
+      tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+  }
+  table.appendChild(tbody);
+
+  // Legend
+  const legend = document.createElement("div");
+  legend.className = "legend";
+  legend.innerHTML = `
+    <div class="legend-item">
+      <div class="legend-gradient"></div>
+      <span>worse → better</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-swatch" style="background:var(--yellow);box-shadow:0 0 0 2px var(--yellow)"></span>
+      <span>▶ running</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-swatch" style="background:var(--orange)"></span>
+      <span>↺ retry (OOM)</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-swatch" style="background:var(--red)"></span>
+      <span>✗ failed</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-swatch" style="background:var(--grey-dark);border:1px solid var(--border)"></span>
+      <span>· pending</span>
+    </div>
+  `;
+
+  container.innerHTML = "";
+  container.appendChild(table);
+  container.appendChild(legend);
+}
+
+// ===========================================================================
+// Build per-model colour maps
+// ===========================================================================
+function buildColorMaps(data) {
+  // colorMaps[model][metric_label] = [array of all values with that label & status done]
+  const maps = {};
+  for (const model of MODELS) {
+    maps[model] = {};
+    const runs = data.runs[model] || {};
+    for (const bucket of BUCKETS) {
+      for (const size of SIZES) {
+        const key  = `${bucket}_${size}`;
+        const info = runs[key];
+        if (!info || info.status !== "done" || info.metric === null) continue;
+        const lbl = info.metric_label;
+        if (!maps[model][lbl]) maps[model][lbl] = [];
+        maps[model][lbl].push(info.metric);
+      }
+    }
+  }
+  return maps;
+}
+
+// ===========================================================================
+// Loss curve chart
+// ===========================================================================
+let losschart = null;
+
+function renderLossChart(data) {
+  const canvas = document.getElementById("loss-chart");
+  const placeholder = document.getElementById("chart-placeholder");
+
+  // Determine which run to highlight: selected > current
+  let highlightKey = selectedRunKey;
+  let currentKey   = null;
+  if (data.current_run) {
+    const cr = data.current_run;
+    currentKey = `${cr.model}|${cr.bucket}_${cr.size}`;
+  }
+  if (!highlightKey) highlightKey = currentKey;
+
+  // Collect all runs with curves
+  const allCurves = [];
+  for (const model of MODELS) {
+    const runs = data.runs[model] || {};
+    for (const bucket of BUCKETS) {
+      for (const size of SIZES) {
+        const key  = `${bucket}_${size}`;
+        const info = runs[key];
+        if (!info || !info.loss_curve || info.loss_curve.length === 0) continue;
+        allCurves.push({
+          runKey: `${model}|${key}`,
+          label:  `${model} · ${bucket} · ${size}`,
+          curve:  info.loss_curve,
+          status: info.status,
+        });
+      }
+    }
+  }
+
+  if (allCurves.length === 0) {
+    canvas.style.display = "none";
+    placeholder.classList.add("visible");
+    if (losschart) { losschart.destroy(); losschart = null; }
+    return;
+  }
+  canvas.style.display = "";
+  placeholder.classList.remove("visible");
+
+  // Sort: highlighted last so it renders on top
+  allCurves.sort((a, b) => (a.runKey === highlightKey ? 1 : 0) - (b.runKey === highlightKey ? 1 : 0));
+
+  const datasets = [];
+  for (const { runKey, label, curve } of allCurves) {
+    const isHighlighted = (runKey === highlightKey);
+    const isCurrent     = (runKey === currentKey);
+    const pts = curve.map(([x, y]) => ({ x, y }));
+
+    if (isHighlighted) {
+      const prefix = isCurrent ? "▶ " : "◆ ";
+      const suffix = isCurrent ? " (running)" : " (selected)";
+      datasets.push({
+        label:           prefix + label + suffix,
+        data:            pts,
+        borderColor:     isCurrent ? "#f5c842" : "#64b5f6",
+        backgroundColor: isCurrent ? "rgba(245,200,66,0.08)" : "rgba(100,181,246,0.08)",
+        borderWidth:     2.5,
+        pointRadius:     2,
+        pointHoverRadius: 5,
+        tension:         0.3,
+        order:           0,
+      });
+    } else {
+      datasets.push({
+        label:           label,
+        data:            pts,
+        borderColor:     "rgba(180,180,200,0.18)",
+        backgroundColor: "transparent",
+        borderWidth:     1,
+        pointRadius:     0,
+        tension:         0.3,
+        order:           1,
+      });
+    }
+  }
+
+  const config = {
+    type: "line",
+    data: { datasets },
+    options: {
+      responsive:          true,
+      maintainAspectRatio: false,
+      animation:           { duration: 200 },
+      interaction:         { mode: "index", intersect: false },
+      plugins: {
+        legend: {
+          display: true,
+          labels: {
+            filter:   item => item.text.startsWith("▶") || item.text.startsWith("◆"),
+            color:    "#e0e0e0",
+            font:     { size: 12 },
+            boxWidth: 18,
+          },
+        },
+        tooltip: {
+          filter: item => item.dataset.borderWidth > 1,
+          callbacks: {
+            title: items => `Step ${items[0].parsed.x}`,
+            label: item  => ` ${item.dataset.label}: ${item.parsed.y.toFixed(4)}`,
+          },
+        },
+      },
+      scales: {
+        x: {
+          type:  "linear",
+          title: { display: true, text: "Training Step", color: "#8888aa", font: { size: 12 } },
+          ticks: { color: "#8888aa", font: { size: 11 } },
+          grid:  { color: "rgba(255,255,255,0.05)" },
+        },
+        y: {
+          title: { display: true, text: "NLL Loss (train)", color: "#8888aa", font: { size: 12 } },
+          ticks: { color: "#8888aa", font: { size: 11 } },
+          grid:  { color: "rgba(255,255,255,0.05)" },
+        },
+      },
+    },
+  };
+
+  if (losschart) {
+    losschart.data    = config.data;
+    losschart.options = config.options;
+    losschart.update("none");
+  } else {
+    losschart = new Chart(canvas, config);
+  }
+}
+
+// ===========================================================================
+// Hyperparameter table
+// ===========================================================================
+function renderHparams(hparams) {
+  if (!hparams || hparams.length === 0) return;
+
+  // Split into two columns (left: first half, right: second half)
+  const mid   = Math.ceil(hparams.length / 2);
+  const left  = hparams.slice(0, mid);
+  const right = hparams.slice(mid);
+
+  function buildTable(rows) {
+    const table = document.createElement("table");
+    table.className = "hparam-table";
+    const thead = document.createElement("thead");
+    thead.innerHTML = `<tr><th>Parameter</th><th>Value</th></tr>`;
+    table.appendChild(thead);
+    const tbody = document.createElement("tbody");
+    for (const [k, v] of rows) {
+      const tr = document.createElement("tr");
+      if (k === "grid_search") tr.classList.add("grid-search-row");
+      tr.innerHTML = `<td>${escHtml(k)}</td><td>${escHtml(String(v))}</td>`;
+      tbody.appendChild(tr);
+    }
+    table.appendChild(tbody);
+    return table;
+  }
+
+  const leftEl  = document.getElementById("hparam-left");
+  const rightEl = document.getElementById("hparam-right");
+  leftEl.innerHTML  = "";
+  rightEl.innerHTML = "";
+  leftEl.appendChild(buildTable(left));
+  if (right.length) rightEl.appendChild(buildTable(right));
+}
+
+// ===========================================================================
+// Header rendering
+// ===========================================================================
+function renderHeader(data) {
+  document.getElementById("timestamp").textContent = `Updated: ${data.timestamp}`;
+
+  const pct  = data.total_runs > 0 ? (data.completed / data.total_runs * 100) : 0;
+  const pctR = pct.toFixed(1);
+  document.getElementById("progress-text").textContent =
+    `${data.completed} / ${data.total_runs} runs completed`;
+  document.getElementById("progress-pct").textContent  = `${pctR}%`;
+  document.getElementById("progress-fill").style.width = `${pct}%`;
+
+  // Current run banner
+  const crContainer = document.getElementById("current-run-container");
+  crContainer.innerHTML = "";
+  if (data.current_run) {
+    const cr  = data.current_run;
+    const pct = cr.pct != null ? cr.pct.toFixed(1) : "?";
+    const div = document.createElement("div");
+    div.className = "current-run-banner";
+    div.innerHTML = `
+      <span class="run-label">▶ Running now</span>
+      <span class="run-pill">${escHtml(cr.model)}</span>
+      <span class="run-pill">${escHtml(cr.bucket)}</span>
+      <span class="run-pill">${escHtml(cr.size)}</span>
+      <span class="run-pill">step ${cr.step ?? "?"}/${cr.total_steps ?? "?"}</span>
+      <div class="run-progress-bar">
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" style="width:${pct}%"></div>
+        </div>
+      </div>
+      <span class="run-pct">${pct}%</span>
+      <span class="run-pill" title="Elapsed">⏱ ${escHtml(cr.elapsed ?? "?")}</span>
+      <span class="run-pill" title="ETA">ETA ${escHtml(cr.eta ?? "?")}</span>
+    `;
+    crContainer.appendChild(div);
+  }
+}
+
+// ===========================================================================
+// Main render
+// ===========================================================================
+function render(data) {
+  lastData = data;
+  renderHeader(data);
+
+  const colorMaps = buildColorMaps(data);
+
+  renderHeatmap("heatmap-1.5B", "Coder-1.5B", data.runs, colorMaps, data.bucket_sizes);
+  renderHeatmap("heatmap-7B",   "Coder-7B",   data.runs, colorMaps, data.bucket_sizes);
+
+  renderLossChart(data);
+  renderHparams(data.hparams);
+}
+
+// ===========================================================================
+// Fetch & auto-refresh
+// ===========================================================================
+const REFRESH_INTERVAL = 30; // seconds
+let countdown     = REFRESH_INTERVAL;
+let countdownTimer = null;
+
+function setCountdown(s) {
+  countdown = s;
+  document.getElementById("countdown").textContent =
+    s > 0 ? `Refreshing in ${s}s` : "Refreshing…";
+}
+
+async function fetchAndRender() {
+  const spinner = document.getElementById("spinner");
+  spinner.classList.add("active");
+  setCountdown(0);
+  try {
+    const resp = await fetch(`dashboard_data.json?_=${Date.now()}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    render(data);
+  } catch (err) {
+    console.error("Dashboard fetch error:", err);
+    document.getElementById("timestamp").textContent = `Fetch error: ${err.message}`;
+  } finally {
+    spinner.classList.remove("active");
+    setCountdown(REFRESH_INTERVAL);
+  }
+}
+
+function startCountdown() {
+  if (countdownTimer) clearInterval(countdownTimer);
+  countdownTimer = setInterval(() => {
+    countdown -= 1;
+    if (countdown <= 0) {
+      clearInterval(countdownTimer);
+      countdownTimer = null;
+      fetchAndRender().then(startCountdown);
+    } else {
+      setCountdown(countdown);
+    }
+  }, 1000);
+}
+
+// ===========================================================================
+// Utility
+// ===========================================================================
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+// ===========================================================================
+// Boot
+// ===========================================================================
+document.addEventListener("DOMContentLoaded", () => {
+  fetchAndRender().then(startCountdown);
+});
+</script>
+</body>
+</html>
