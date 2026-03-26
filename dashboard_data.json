@@ -1,16 +1,16 @@
 {
-  "timestamp": "2026-03-26 21:37:02",
+  "timestamp": "2026-03-26 21:42:06",
   "total_runs": 38,
-  "completed": 24,
+  "completed": 25,
   "current_run": {
     "model": "Coder-7B",
     "bucket": "6k_8k",
-    "size": "1k",
-    "step": 15,
-    "total_steps": 16,
-    "pct": 93.75,
-    "eta": "0:00:23",
-    "elapsed": "0:05:55"
+    "size": "2k",
+    "step": 2,
+    "total_steps": 32,
+    "pct": 6.25,
+    "eta": "0:13:29",
+    "elapsed": "0:00:53"
   },
   "hparams": [
     [
@@ -2869,18 +2869,79 @@
         "total_steps": 63
       },
       "6k_8k_1k": {
+        "status": "done",
+        "metric": 1.024709403514862,
+        "metric_label": "train_loss",
+        "loss_curve": [
+          [
+            1,
+            1.6159818172454834
+          ],
+          [
+            2,
+            1.2372312545776367
+          ],
+          [
+            3,
+            1.0000250339508057
+          ],
+          [
+            4,
+            1.1125282049179077
+          ],
+          [
+            5,
+            1.9565492868423462
+          ],
+          [
+            6,
+            1.2202545404434204
+          ],
+          [
+            7,
+            0.8688603639602661
+          ],
+          [
+            8,
+            1.01155686378479
+          ],
+          [
+            9,
+            0.9736748337745667
+          ],
+          [
+            10,
+            0.8740437626838684
+          ],
+          [
+            11,
+            0.7939239144325256
+          ],
+          [
+            12,
+            0.6984278559684753
+          ],
+          [
+            13,
+            0.9698473215103149
+          ],
+          [
+            14,
+            0.6972540020942688
+          ],
+          [
+            15,
+            0.7140231132507324
+          ]
+        ],
+        "total_steps": 16
+      },
+      "6k_8k_2k": {
         "status": "running",
         "metric": null,
         "metric_label": "train_loss",
         "loss_curve": [],
-        "total_steps": 16
-      },
-      "6k_8k_2k": {
-        "status": "pending",
-        "metric": null,
-        "metric_label": "train_loss",
-        "loss_curve": [],
-        "total_steps": null
+        "total_steps": 32
       },
       "6k_8k_4k": {
         "status": "pending",
