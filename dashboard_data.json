@@ -1,13 +1,13 @@
 {
-  "timestamp": "2026-03-26 19:15:15",
+  "timestamp": "2026-03-26 19:20:21",
   "total_runs": 38,
-  "completed": 20,
+  "completed": 21,
   "current_run": {
     "model": "Coder-1.5B",
     "bucket": "16k_20k",
-    "size": "4k",
+    "size": "8k",
     "step": 0,
-    "total_steps": 53,
+    "total_steps": 106,
     "pct": 0.0,
     "eta": "0:00:00",
     "elapsed": "0:00:09"
@@ -1911,14 +1911,23 @@
         "total_steps": 2
       },
       "16k_20k_4k": {
-        "status": "running",
-        "metric": null,
+        "status": "done",
+        "metric": 2.2854790687561035,
         "metric_label": "train_loss",
-        "loss_curve": [],
-        "total_steps": 53
+        "loss_curve": [
+          [
+            1,
+            1.583321452140808
+          ],
+          [
+            2,
+            2.3017988204956055
+          ]
+        ],
+        "total_steps": 3
       },
       "16k_20k_8k": {
-        "status": "retry",
+        "status": "running",
         "metric": null,
         "metric_label": "train_loss",
         "loss_curve": [],
