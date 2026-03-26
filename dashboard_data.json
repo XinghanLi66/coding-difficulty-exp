@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-26 19:05:07",
+  "timestamp": "2026-03-26 19:10:12",
   "total_runs": 38,
   "completed": 19,
   "current_run": {
@@ -7,10 +7,10 @@
     "bucket": "16k_20k",
     "size": "2k",
     "step": 0,
-    "total_steps": 26,
+    "total_steps": 2,
     "pct": 0.0,
     "eta": "0:00:00",
-    "elapsed": "0:00:08"
+    "elapsed": "0:00:45"
   },
   "hparams": [
     [
@@ -1903,7 +1903,7 @@
         "metric": null,
         "metric_label": "train_loss",
         "loss_curve": [],
-        "total_steps": 26
+        "total_steps": 2
       },
       "16k_20k_4k": {
         "status": "retry",
