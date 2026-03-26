@@ -1,16 +1,16 @@
 {
-  "timestamp": "2026-03-26 19:30:28",
+  "timestamp": "2026-03-26 19:35:31",
   "total_runs": 38,
   "completed": 21,
   "current_run": {
     "model": "Coder-1.5B",
     "bucket": "16k_20k",
     "size": "8k",
-    "step": 0,
-    "total_steps": 106,
-    "pct": 0.0,
-    "eta": "0:00:00",
-    "elapsed": "0:00:09"
+    "step": 4,
+    "total_steps": 6,
+    "pct": 66.67,
+    "eta": "0:01:46",
+    "elapsed": "0:03:32"
   },
   "hparams": [
     [
@@ -1931,7 +1931,7 @@
         "metric": null,
         "metric_label": "train_loss",
         "loss_curve": [],
-        "total_steps": 106
+        "total_steps": 6
       }
     },
     "Coder-7B": {
