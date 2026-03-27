@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-27 13:15:28",
+  "timestamp": "2026-03-27 13:28:51",
   "total_runs": 38,
   "completed": 28,
   "current_run": {
@@ -64,6 +64,8 @@
         "status": "done",
         "metric": 0.003409090909090909,
         "metric_label": "pass@1",
+        "train_loss": 1.3019978702068329,
+        "pass1": 0.003409090909090909,
         "loss_curve": [
           [
             1,
@@ -132,6 +134,8 @@
         "status": "done",
         "metric": 1.5531391277909279,
         "metric_label": "train_loss",
+        "train_loss": 1.5531391277909279,
+        "pass1": null,
         "loss_curve": [
           [
             1,
@@ -264,6 +268,8 @@
         "status": "done",
         "metric": 0.8794699245029025,
         "metric_label": "train_loss",
+        "train_loss": 0.8794699245029025,
+        "pass1": null,
         "loss_curve": [
           [
             1,
@@ -520,6 +526,8 @@
         "status": "done",
         "metric": 1.9083027243614197,
         "metric_label": "train_loss",
+        "train_loss": 1.9083027243614197,
+        "pass1": null,
         "loss_curve": [
           [
             1,
@@ -588,6 +596,8 @@
         "status": "done",
         "metric": 1.2965675853192806,
         "metric_label": "train_loss",
+        "train_loss": 1.2965675853192806,
+        "pass1": null,
         "loss_curve": [
           [
             1,
@@ -720,6 +730,8 @@
         "status": "done",
         "metric": 1.1424720135946123,
         "metric_label": "train_loss",
+        "train_loss": 1.1424720135946123,
+        "pass1": null,
         "loss_curve": [
           [
             1,
@@ -976,6 +988,8 @@
         "status": "done",
         "metric": 1.9557529389858246,
         "metric_label": "train_loss",
+        "train_loss": 1.9557529389858246,
+        "pass1": null,
         "loss_curve": [
           [
             1,
@@ -1044,6 +1058,8 @@
         "status": "done",
         "metric": 1.380140095949173,
         "metric_label": "train_loss",
+        "train_loss": 1.380140095949173,
+        "pass1": null,
         "loss_curve": [
           [
             1,
@@ -1176,6 +1192,8 @@
         "status": "done",
         "metric": 1.0857318923586892,
         "metric_label": "train_loss",
+        "train_loss": 1.0857318923586892,
+        "pass1": null,
         "loss_curve": [
           [
             1,
@@ -1432,6 +1450,8 @@
         "status": "done",
         "metric": 1.8768946826457977,
         "metric_label": "train_loss",
+        "train_loss": 1.8768946826457977,
+        "pass1": null,
         "loss_curve": [
           [
             1,
@@ -1500,6 +1520,8 @@
         "status": "done",
         "metric": 1.4066603407263756,
         "metric_label": "train_loss",
+        "train_loss": 1.4066603407263756,
+        "pass1": null,
         "loss_curve": [
           [
             1,
@@ -1632,6 +1654,8 @@
         "status": "done",
         "metric": 0.004545454545454545,
         "metric_label": "pass@1",
+        "train_loss": 1.5343625856482463,
+        "pass1": 0.004545454545454545,
         "loss_curve": [
           [
             1,
@@ -1728,6 +1752,8 @@
         "status": "done",
         "metric": 1.9836385647455852,
         "metric_label": "train_loss",
+        "train_loss": 1.9836385647455852,
+        "pass1": null,
         "loss_curve": [
           [
             1,
@@ -1780,6 +1806,8 @@
         "status": "done",
         "metric": 1.4852824783325196,
         "metric_label": "train_loss",
+        "train_loss": 1.4852824783325196,
+        "pass1": null,
         "loss_curve": [
           [
             1,
@@ -1884,6 +1912,8 @@
         "status": "done",
         "metric": 1.4685946603616078,
         "metric_label": "train_loss",
+        "train_loss": 1.4685946603616078,
+        "pass1": null,
         "loss_curve": [
           [
             1,
@@ -1984,6 +2014,8 @@
         "status": "done",
         "metric": 1.1479610204696655,
         "metric_label": "train_loss",
+        "train_loss": 1.1479610204696655,
+        "pass1": null,
         "loss_curve": [],
         "total_steps": 1
       },
@@ -1991,6 +2023,8 @@
         "status": "done",
         "metric": 1.5760291814804077,
         "metric_label": "train_loss",
+        "train_loss": 1.5760291814804077,
+        "pass1": null,
         "loss_curve": [
           [
             1,
@@ -2003,6 +2037,8 @@
         "status": "done",
         "metric": 2.2854790687561035,
         "metric_label": "train_loss",
+        "train_loss": 2.2854790687561035,
+        "pass1": null,
         "loss_curve": [
           [
             1,
@@ -2019,6 +2055,8 @@
         "status": "done",
         "metric": 2.445223013559977,
         "metric_label": "train_loss",
+        "train_loss": 2.445223013559977,
+        "pass1": null,
         "loss_curve": [
           [
             1,
@@ -2049,6 +2087,8 @@
         "status": "done",
         "metric": 0.8385702073574066,
         "metric_label": "train_loss",
+        "train_loss": 0.8385702073574066,
+        "pass1": null,
         "loss_curve": [
           [
             1,
@@ -2117,6 +2157,8 @@
         "status": "done",
         "metric": 1.2933144941926003,
         "metric_label": "train_loss",
+        "train_loss": 1.2933144941926003,
+        "pass1": null,
         "loss_curve": [
           [
             1,
@@ -2249,6 +2291,8 @@
         "status": "done",
         "metric": 0.6767208462669736,
         "metric_label": "train_loss",
+        "train_loss": 0.6767208462669736,
+        "pass1": null,
         "loss_curve": [
           [
             1,
@@ -2505,6 +2549,8 @@
         "status": "done",
         "metric": 0.8568072319030762,
         "metric_label": "train_loss",
+        "train_loss": 0.8568072319030762,
+        "pass1": null,
         "loss_curve": [
           [
             1,
@@ -2573,6 +2619,8 @@
         "status": "done",
         "metric": 0.7775608375668526,
         "metric_label": "train_loss",
+        "train_loss": 0.7775608375668526,
+        "pass1": null,
         "loss_curve": [
           [
             1,
@@ -2705,6 +2753,8 @@
         "status": "done",
         "metric": 0.6842372625593155,
         "metric_label": "train_loss",
+        "train_loss": 0.6842372625593155,
+        "pass1": null,
         "loss_curve": [
           [
             1,
@@ -2961,6 +3011,8 @@
         "status": "done",
         "metric": 1.024709403514862,
         "metric_label": "train_loss",
+        "train_loss": 1.024709403514862,
+        "pass1": null,
         "loss_curve": [
           [
             1,
@@ -3029,6 +3081,8 @@
         "status": "done",
         "metric": 0.7632346116006374,
         "metric_label": "train_loss",
+        "train_loss": 0.7632346116006374,
+        "pass1": null,
         "loss_curve": [
           [
             1,
@@ -3161,6 +3215,8 @@
         "status": "done",
         "metric": 0.6965516446128724,
         "metric_label": "train_loss",
+        "train_loss": 0.6965516446128724,
+        "pass1": null,
         "loss_curve": [
           [
             1,
@@ -3417,6 +3473,8 @@
         "status": "retry",
         "metric": null,
         "metric_label": "train_loss",
+        "train_loss": null,
+        "pass1": null,
         "loss_curve": [],
         "total_steps": 16
       },
@@ -3424,6 +3482,8 @@
         "status": "retry",
         "metric": null,
         "metric_label": "train_loss",
+        "train_loss": null,
+        "pass1": null,
         "loss_curve": [],
         "total_steps": 32
       },
@@ -3431,6 +3491,8 @@
         "status": "running",
         "metric": null,
         "metric_label": "train_loss",
+        "train_loss": null,
+        "pass1": null,
         "loss_curve": [],
         "total_steps": 63
       },
@@ -3438,6 +3500,8 @@
         "status": "retry",
         "metric": null,
         "metric_label": "train_loss",
+        "train_loss": null,
+        "pass1": null,
         "loss_curve": [],
         "total_steps": 16
       },
@@ -3445,6 +3509,8 @@
         "status": "retry",
         "metric": null,
         "metric_label": "train_loss",
+        "train_loss": null,
+        "pass1": null,
         "loss_curve": [],
         "total_steps": 32
       },
@@ -3452,6 +3518,8 @@
         "status": "retry",
         "metric": null,
         "metric_label": "train_loss",
+        "train_loss": null,
+        "pass1": null,
         "loss_curve": [],
         "total_steps": 62
       },
@@ -3459,6 +3527,8 @@
         "status": "pending",
         "metric": null,
         "metric_label": "train_loss",
+        "train_loss": null,
+        "pass1": null,
         "loss_curve": [],
         "total_steps": null
       },
@@ -3466,6 +3536,8 @@
         "status": "failed",
         "metric": null,
         "metric_label": "train_loss",
+        "train_loss": null,
+        "pass1": null,
         "loss_curve": [],
         "total_steps": 26
       },
@@ -3473,6 +3545,8 @@
         "status": "pending",
         "metric": null,
         "metric_label": "train_loss",
+        "train_loss": null,
+        "pass1": null,
         "loss_curve": [],
         "total_steps": null
       },
@@ -3480,6 +3554,8 @@
         "status": "retry",
         "metric": null,
         "metric_label": "train_loss",
+        "train_loss": null,
+        "pass1": null,
         "loss_curve": [],
         "total_steps": 106
       }

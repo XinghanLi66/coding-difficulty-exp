@@ -404,17 +404,17 @@
        HEATMAPS
   ===================================================================== -->
   <div class="heatmap-row">
-    <!-- Coder-1.5B -->
+    <!-- NLL heatmap -->
     <div class="card">
-      <div class="section-title">Model Performance</div>
-      <div class="heatmap-title">Qwen2.5-Coder-1.5B</div>
-      <div id="heatmap-1.5B"></div>
+      <div class="section-title">Qwen2.5-Coder-1.5B</div>
+      <div class="heatmap-title">Train NLL <span style="font-size:12px;color:var(--muted);font-weight:400">(lower → better)</span></div>
+      <div id="heatmap-nll"></div>
     </div>
-    <!-- Coder-7B -->
+    <!-- pass@1 heatmap -->
     <div class="card">
-      <div class="section-title">Model Performance</div>
-      <div class="heatmap-title">Qwen2.5-Coder-7B</div>
-      <div id="heatmap-7B"></div>
+      <div class="section-title">Qwen2.5-Coder-1.5B</div>
+      <div class="heatmap-title">pass@1 on LiveCodeBench <span style="font-size:12px;color:var(--muted);font-weight:400">(higher → better)</span></div>
+      <div id="heatmap-pass1"></div>
     </div>
   </div>
 
@@ -428,8 +428,7 @@
         All completed runs (grey) · current run (yellow) · <em>click a heatmap cell to highlight</em>
       </div>
       <div style="margin-left:auto;font-size:11px;color:var(--muted);text-align:right">
-        ⚠ Heatmap shows <strong style="color:var(--text)">train loss (NLL↓)</strong> now.<br>
-        Will switch to <strong style="color:var(--green)">pass@1 (code execution↑)</strong> after eval.
+        Curves show <strong style="color:var(--text)">train NLL</strong> over steps.
       </div>
     </div>
     <div class="chart-wrap">
@@ -526,22 +525,22 @@ function metricColor(value, allValues, metricLabel) {
 
 // ===========================================================================
 // Heatmap rendering
+// metricField: "train_loss" | "pass1"
+// metricLabel: "train_loss" | "pass@1"
+// colorValues: array of all numeric values for this metric (for colour scale)
 // ===========================================================================
-function renderHeatmap(containerId, modelKey, runsData, colorMaps, bucketSizes) {
+function renderHeatmap(containerId, modelKey, runsData, metricField, metricLabel, colorValues, bucketSizes) {
   const container = document.getElementById(containerId);
   if (!container) return;
 
-  const runs = runsData[modelKey] || {};
-  // bucketSizes: {bucket: [size, ...]} — sizes that actually have data/configs
-  // Fall back to SIZES for buckets not listed
+  const runs   = runsData[modelKey] || {};
   const bsizes = bucketSizes || {};
 
-  // Build table
-  const table = document.createElement("table");
+  const table  = document.createElement("table");
   table.className = "heatmap-table";
 
   // Header row
-  const thead = document.createElement("thead");
+  const thead   = document.createElement("thead");
   const headRow = document.createElement("tr");
   const thCorner = document.createElement("th");
   thCorner.className = "row-header";
@@ -568,43 +567,58 @@ function renderHeatmap(containerId, modelKey, runsData, colorMaps, bucketSizes) 
     for (const size of SIZES) {
       const td = document.createElement("td");
       if (!validSizes.includes(size)) {
-        // This size doesn't exist for this bucket — show n/a
         td.className = "heatmap-cell status-na";
         td.textContent = "—";
-        td.title = `${modelKey} · ${bucket} · ${size} — not available (pool too small)`;
+        td.title = `${modelKey} · ${bucket} · ${size} — not available`;
         tr.appendChild(td);
         continue;
       }
 
-      const key  = `${bucket}_${size}`;
-      const info = runs[key] || { status:"pending", metric:null, metric_label:"train_loss" };
+      const key    = `${bucket}_${size}`;
+      const info   = runs[key] || { status: "pending" };
       const runKey = `${modelKey}|${key}`;
-      td.className = `heatmap-cell status-${info.status}`;
+      const metricVal = info[metricField];
+
+      // Training status drives cell colour for NLL; pending-eval drives it for pass@1
+      if (metricField === "pass1") {
+        // pass@1 heatmap: if training not done yet → pending; if done but no eval → "eval…"
+        if (info.status !== "done") {
+          td.className = `heatmap-cell status-${info.status}`;
+          td.textContent = STATUS_SYMBOL[info.status] || "·";
+          td.title = `${modelKey} · ${bucket} · ${size} · ${info.status}`;
+        } else if (metricVal === null || metricVal === undefined) {
+          td.className = "heatmap-cell status-pending";
+          td.textContent = "…";
+          td.title = `${modelKey} · ${bucket} · ${size} · eval pending`;
+        } else {
+          td.className = "heatmap-cell status-done";
+          const bg = metricColor(metricVal, colorValues, metricLabel);
+          if (bg) td.style.background = bg;
+          td.textContent = (metricVal * 100).toFixed(1) + "%";
+          td.title = `${modelKey} · ${bucket} · ${size}\npass@1: ${(metricVal*100).toFixed(2)}%\nClick to highlight loss curve`;
+        }
+      } else {
+        // NLL heatmap: use training status
+        td.className = `heatmap-cell status-${info.status}`;
+        if (info.status === "done" && metricVal !== null && metricVal !== undefined) {
+          const bg = metricColor(metricVal, colorValues, metricLabel);
+          if (bg) td.style.background = bg;
+          td.textContent = metricVal.toFixed(2);
+          td.title = `${modelKey} · ${bucket} · ${size}\nNLL: ${metricVal.toFixed(4)}\nClick to highlight loss curve`;
+        } else {
+          td.textContent = STATUS_SYMBOL[info.status] || "·";
+          td.title = `${modelKey} · ${bucket} · ${size} · ${info.status}`;
+        }
+      }
+
       td.dataset.runKey = runKey;
       if (runKey === selectedRunKey) td.classList.add("selected");
 
-      if (info.status === "done" && info.metric !== null) {
-        // Colour from scale
-        const bg = colorMaps[modelKey]?.[info.metric_label]
-          ? metricColor(info.metric, colorMaps[modelKey][info.metric_label], info.metric_label)
-          : null;
-        if (bg) td.style.background = bg;
-        td.textContent = info.metric.toFixed(2);
-
-        // Tooltip
-        const label = info.metric_label === "pass@1" ? "pass@1" : "train_loss (NLL)";
-        td.title = `${modelKey} · ${bucket} · ${size}\n${label}: ${info.metric.toFixed(4)}\nClick to highlight loss curve`;
-      } else {
-        td.textContent = STATUS_SYMBOL[info.status] || "·";
-        td.title = `${modelKey} · ${bucket} · ${size} · ${info.status}`;
-      }
-
-      // Click to highlight loss curve (only if there's curve data)
       if (info.loss_curve && info.loss_curve.length > 0) {
         td.addEventListener("click", () => setSelectedRun(runKey));
       } else if (info.status !== "pending") {
         td.style.cursor = "not-allowed";
-        td.title += "\n(no loss data yet)";
+        td.title += "\n(no loss data)";
       }
 
       tr.appendChild(td);
@@ -613,30 +627,14 @@ function renderHeatmap(containerId, modelKey, runsData, colorMaps, bucketSizes) 
   }
   table.appendChild(tbody);
 
-  // Legend
   const legend = document.createElement("div");
   legend.className = "legend";
   legend.innerHTML = `
-    <div class="legend-item">
-      <div class="legend-gradient"></div>
-      <span>worse → better</span>
-    </div>
-    <div class="legend-item">
-      <span class="legend-swatch" style="background:var(--yellow);box-shadow:0 0 0 2px var(--yellow)"></span>
-      <span>▶ running</span>
-    </div>
-    <div class="legend-item">
-      <span class="legend-swatch" style="background:var(--orange)"></span>
-      <span>↺ retry (OOM)</span>
-    </div>
-    <div class="legend-item">
-      <span class="legend-swatch" style="background:var(--red)"></span>
-      <span>✗ failed</span>
-    </div>
-    <div class="legend-item">
-      <span class="legend-swatch" style="background:var(--grey-dark);border:1px solid var(--border)"></span>
-      <span>· pending</span>
-    </div>
+    <div class="legend-item"><div class="legend-gradient"></div><span>worse → better</span></div>
+    <div class="legend-item"><span class="legend-swatch" style="background:var(--yellow);box-shadow:0 0 0 2px var(--yellow)"></span><span>▶ running</span></div>
+    <div class="legend-item"><span class="legend-swatch" style="background:var(--orange)"></span><span>↺ retry</span></div>
+    <div class="legend-item"><span class="legend-swatch" style="background:var(--red)"></span><span>✗ failed</span></div>
+    <div class="legend-item"><span class="legend-swatch" style="background:var(--grey-dark);border:1px solid var(--border)"></span><span>· pending</span></div>
   `;
 
   container.innerHTML = "";
@@ -645,26 +643,20 @@ function renderHeatmap(containerId, modelKey, runsData, colorMaps, bucketSizes) 
 }
 
 // ===========================================================================
-// Build per-model colour maps
+// Collect all values for a given metric field across a model's runs
 // ===========================================================================
-function buildColorMaps(data) {
-  // colorMaps[model][metric_label] = [array of all values with that label & status done]
-  const maps = {};
-  for (const model of MODELS) {
-    maps[model] = {};
-    const runs = data.runs[model] || {};
-    for (const bucket of BUCKETS) {
-      for (const size of SIZES) {
-        const key  = `${bucket}_${size}`;
-        const info = runs[key];
-        if (!info || info.status !== "done" || info.metric === null) continue;
-        const lbl = info.metric_label;
-        if (!maps[model][lbl]) maps[model][lbl] = [];
-        maps[model][lbl].push(info.metric);
-      }
+function buildColorValues(data, modelKey, metricField) {
+  const runs = data.runs[modelKey] || {};
+  const vals = [];
+  for (const bucket of BUCKETS) {
+    for (const size of SIZES) {
+      const info = runs[`${bucket}_${size}`];
+      if (!info || info.status !== "done") continue;
+      const v = info[metricField];
+      if (v !== null && v !== undefined) vals.push(v);
     }
   }
-  return maps;
+  return vals;
 }
 
 // ===========================================================================
@@ -884,10 +876,11 @@ function render(data) {
   lastData = data;
   renderHeader(data);
 
-  const colorMaps = buildColorMaps(data);
+  const nllVals   = buildColorValues(data, "Coder-1.5B", "train_loss");
+  const pass1Vals = buildColorValues(data, "Coder-1.5B", "pass1");
 
-  renderHeatmap("heatmap-1.5B", "Coder-1.5B", data.runs, colorMaps, data.bucket_sizes);
-  renderHeatmap("heatmap-7B",   "Coder-7B",   data.runs, colorMaps, data.bucket_sizes);
+  renderHeatmap("heatmap-nll",   "Coder-1.5B", data.runs, "train_loss", "train_loss", nllVals,   data.bucket_sizes);
+  renderHeatmap("heatmap-pass1", "Coder-1.5B", data.runs, "pass1",      "pass@1",     pass1Vals, data.bucket_sizes);
 
   renderLossChart(data);
   renderHparams(data.hparams);

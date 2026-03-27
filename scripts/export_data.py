@@ -199,6 +199,8 @@ def get_run_info(model: str, bucket: str, size: str) -> dict:
         "status":              status,
         "metric":              metric,
         "metric_label":        metric_label,
+        "train_loss":          train_loss,
+        "pass1":               _pass1,
         "loss_curve":          loss_curve,
         "total_steps":         total_steps,
         # Internal fields for current-run detection
@@ -362,6 +364,8 @@ def export():
                     "status":       info["status"],
                     "metric":       info["metric"],
                     "metric_label": info["metric_label"],
+                    "train_loss":   info["train_loss"],
+                    "pass1":        info["pass1"],
                     "loss_curve":   info["loss_curve"],
                     "total_steps":  info["total_steps"],
                 }
