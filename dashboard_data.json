@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-27 17:06:03",
+  "timestamp": "2026-03-27 17:10:27",
   "total_runs": 38,
   "completed": 28,
   "current_run": {
@@ -2012,10 +2012,10 @@
       },
       "16k_20k_1k": {
         "status": "done",
-        "metric": 1.1479610204696655,
-        "metric_label": "train_loss",
+        "metric": 0.4146341463414634,
+        "metric_label": "pass@1",
         "train_loss": 1.1479610204696655,
-        "pass1": null,
+        "pass1": 0.4146341463414634,
         "loss_curve": [],
         "total_steps": 1
       },
