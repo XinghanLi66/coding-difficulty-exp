@@ -32,17 +32,13 @@ def get_train_loss(bucket: str, size: str):
 def get_pass1(bucket: str, size: str):
     path = os.path.join(EVAL_DIR, f"Coder-1.5B_bucket_{bucket}_{size}.json")
     if not os.path.exists(path):
-        return None, None, None, None
+        return None
     m = json.load(open(path))["metrics"]
-    return (
-        m.get("pass@1_total"),
-        m.get("pass@1_easy"),
-        m.get("pass@1_medium"),
-        m.get("pass@1_hard"),
-    )
+    # HumanEval stores pass@1 directly; LCB used pass@1_total
+    return m.get("pass@1") or m.get("pass@1_total")
 
 
-header = ["bucket", "size", "train_nll", "pass@1", "pass@1_easy", "pass@1_med", "pass@1_hard"]
+header = ["bucket", "size", "train_nll", "humaneval_pass@1"]
 rows = []
 
 for bucket in BUCKETS:
@@ -51,7 +47,7 @@ for bucket in BUCKETS:
         if not os.path.exists(model_dir):
             continue
         nll = get_train_loss(bucket, size)
-        p1, p1e, p1m, p1h = get_pass1(bucket, size)
+        p1  = get_pass1(bucket, size)
 
         def fmt(v, pct=False):
             if v is None: return "—"
@@ -61,9 +57,6 @@ for bucket in BUCKETS:
             bucket, size,
             fmt(nll),
             fmt(p1, pct=True),
-            fmt(p1e, pct=True),
-            fmt(p1m, pct=True),
-            fmt(p1h, pct=True),
         ])
 
 # Write TSV

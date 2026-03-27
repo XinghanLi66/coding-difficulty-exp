@@ -1,5 +1,5 @@
 #!/bin/bash
-# Evaluate a trained model on LiveCodeBench using vLLM.
+# Evaluate a trained model on HumanEval using vLLM.
 # Usage: bash eval_one.sh <model_dir> [gpu_ids]
 # Example: bash eval_one.sh results/Coder-1.5B/bucket_2k_4k_1k 0,1
 
@@ -32,7 +32,7 @@ N_GPUS=$(echo "$GPU_IDS" | tr ',' '\n' | wc -l)
 CUDA_VISIBLE_DEVICES="$GPU_IDS" \
 USE_TORCH=1 \
 DISABLE_VERSION_CHECK=1 \
-$PYTHON "$PROJECT_DIR/scripts/run_lcb_eval.py" \
+$PYTHON "$PROJECT_DIR/scripts/run_humaneval.py" \
     --model_path "$MODEL_DIR" \
     --output_path "$RESULT_FILE" \
     --tensor_parallel_size "$N_GPUS" \

@@ -184,7 +184,9 @@ def get_run_info(model: str, bucket: str, size: str) -> dict:
         if "overall_pass@1" in eval_data:
             _pass1 = eval_data["overall_pass@1"]
         elif isinstance(eval_data.get("metrics"), dict):
-            _pass1 = eval_data["metrics"].get("pass@1_total")
+            m = eval_data["metrics"]
+            # HumanEval uses "pass@1"; LCB used "pass@1_total"
+            _pass1 = m.get("pass@1") or m.get("pass@1_total")
     if _pass1 is not None:
         metric       = _pass1
         metric_label = "pass@1"
