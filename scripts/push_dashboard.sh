@@ -17,8 +17,6 @@ while true; do
     # Only push if dashboard_data.json actually changed
     if ! git diff --quiet dashboard_data.json; then
         git add dashboard_data.json
-        # Also pick up any eval results that landed
-        git add results/eval/ 2>/dev/null || true
         git commit -m "dashboard: update $(date '+%H:%M:%S') — $(python3 -c "
 import json
 d=json.load(open('dashboard_data.json'))
