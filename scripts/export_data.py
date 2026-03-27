@@ -179,8 +179,14 @@ def get_run_info(model: str, bucket: str, size: str) -> dict:
 
     # ---- Eval metric -------------------------------------------------------
     eval_data = read_json(eval_path)
-    if eval_data and "overall_pass@1" in eval_data:
-        metric       = eval_data["overall_pass@1"]
+    _pass1 = None
+    if eval_data:
+        if "overall_pass@1" in eval_data:
+            _pass1 = eval_data["overall_pass@1"]
+        elif isinstance(eval_data.get("metrics"), dict):
+            _pass1 = eval_data["metrics"].get("pass@1_total")
+    if _pass1 is not None:
+        metric       = _pass1
         metric_label = "pass@1"
     elif train_loss is not None:
         metric       = train_loss

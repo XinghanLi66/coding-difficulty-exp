@@ -23,7 +23,7 @@ def parse_args():
     p.add_argument("--tensor_parallel_size", type=int, default=1)
     p.add_argument("--n_samples", type=int, default=1)
     p.add_argument("--temperature", type=float, default=0.0)
-    p.add_argument("--max_tokens", type=int, default=8192)
+    p.add_argument("--max_tokens", type=int, default=16384)
     p.add_argument("--version", default="release_v5",
                    help="LiveCodeBench version tag (release_v1 .. release_v5)")
     p.add_argument("--n_problems", type=int, default=None,

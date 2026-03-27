@@ -1,6 +1,7 @@
 # Model checkpoints and training outputs (too large for git)
 results/*/
 !results/eval/
+results/eval/*.json
 
 # Raw dataset files (too large)
 data/processed/*/pool.jsonl

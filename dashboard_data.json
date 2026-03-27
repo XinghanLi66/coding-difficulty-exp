@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-27 12:48:38",
+  "timestamp": "2026-03-27 13:15:28",
   "total_runs": 38,
   "completed": 28,
   "current_run": {
@@ -62,8 +62,8 @@
     "Coder-1.5B": {
       "2k_4k_1k": {
         "status": "done",
-        "metric": 1.3019978702068329,
-        "metric_label": "train_loss",
+        "metric": 0.003409090909090909,
+        "metric_label": "pass@1",
         "loss_curve": [
           [
             1,
@@ -1630,8 +1630,8 @@
       },
       "8k_12k_4k": {
         "status": "done",
-        "metric": 1.5343625856482463,
-        "metric_label": "train_loss",
+        "metric": 0.004545454545454545,
+        "metric_label": "pass@1",
         "loss_curve": [
           [
             1,
