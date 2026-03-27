@@ -84,7 +84,7 @@ def run_generation(args, problems):
         model=args.model_path,
         tensor_parallel_size=args.tensor_parallel_size,
         trust_remote_code=True,
-        max_model_len=args.max_tokens + 4096,
+        max_model_len=min(args.max_tokens + 4096, 32768),
         gpu_memory_utilization=0.9,
     )
 
