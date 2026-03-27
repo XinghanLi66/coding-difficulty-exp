@@ -38,6 +38,6 @@ $PYTHON "$PROJECT_DIR/scripts/run_lcb_eval.py" \
     --tensor_parallel_size "$N_GPUS" \
     --n_samples 1 \
     --temperature 0.0 \
-    --max_tokens 16384
+    --max_tokens 32768
 
 echo "Done: $RUN_NAME  →  $RESULT_FILE"

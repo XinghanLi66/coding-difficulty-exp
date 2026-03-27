@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-27 13:40:08",
+  "timestamp": "2026-03-27 14:48:56",
   "total_runs": 38,
   "completed": 28,
   "current_run": {
@@ -266,10 +266,10 @@
       },
       "2k_4k_4k": {
         "status": "done",
-        "metric": 0.8794699245029025,
-        "metric_label": "train_loss",
+        "metric": 0.025,
+        "metric_label": "pass@1",
         "train_loss": 0.8794699245029025,
-        "pass1": null,
+        "pass1": 0.025,
         "loss_curve": [
           [
             1,
@@ -1652,10 +1652,10 @@
       },
       "8k_12k_4k": {
         "status": "done",
-        "metric": 0.004545454545454545,
-        "metric_label": "pass@1",
+        "metric": 1.5343625856482463,
+        "metric_label": "train_loss",
         "train_loss": 1.5343625856482463,
-        "pass1": 0.004545454545454545,
+        "pass1": null,
         "loss_curve": [
           [
             1,
